@@ -57,6 +57,26 @@ class PayTest extends TestCase
         $this->assertSame('failed', $order->payments()->first()->status);
     }
 
+    public function test_an_open_session_on_the_phone_reopens_the_order_with_wait_advice(): void
+    {
+        $this->setUpDaraja(['*/mpesa/stkpush/v1/processrequest' => Http::response(['errorCode' => '500.001.1001', 'errorMessage' => 'Unable to lock subscriber, a transaction is already in process for the current subscriber'], 500)]);
+        $order = $this->makeOrder();
+
+        $this->pay($order)->assertStatus(502)->assertJsonFragment(['message' => 'A payment prompt is already open on this phone. Nothing was charged; wait one minute, then try again.']);
+
+        $this->assertSame('pending', $order->fresh()->status);
+    }
+
+    public function test_a_quota_violation_reopens_the_order(): void
+    {
+        $this->setUpDaraja(['*/mpesa/stkpush/v1/processrequest' => Http::response(['errorCode' => '500.003.03', 'errorMessage' => 'Quota Violation'], 500)]);
+        $order = $this->makeOrder();
+
+        $this->pay($order)->assertStatus(502);
+
+        $this->assertSame('pending', $order->fresh()->status);
+    }
+
     public function test_a_non_zero_response_code_reopens_the_order(): void
     {
         $this->setUpDaraja(['*/mpesa/stkpush/v1/processrequest' => Http::response(['ResponseCode' => '1', 'ResponseDescription' => 'Rejected'])]);
@@ -80,7 +100,7 @@ class PayTest extends TestCase
 
     public function test_a_server_error_is_an_unknown_outcome_and_keeps_the_order_waiting(): void
     {
-        $this->setUpDaraja(['*/mpesa/stkpush/v1/processrequest' => Http::response(['errorCode' => '500.001.1001', 'errorMessage' => 'Internal error'], 500)]);
+        $this->setUpDaraja(['*/mpesa/stkpush/v1/processrequest' => Http::response(['errorCode' => '500.003.1001', 'errorMessage' => 'Internal Server Error'], 500)]);
         $order = $this->makeOrder();
 
         $this->pay($order)->assertStatus(504);

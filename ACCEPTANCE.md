@@ -15,7 +15,7 @@ Tick each line on your own app. The test named in brackets checks it for you.
 - [ ] The placeholder callback token is refused loudly; only a random value of 32 or more characters works (`PayTest`)
 - [ ] Pay sends one STK Push for the order total with a correct password and the HTTPS result address (`PayTest`)
 - [ ] Tapping pay twice gives 409 and creates one payment (`PayTest`)
-- [ ] Only a clear refusal (a 4xx with an `errorCode`, or a `ResponseCode` other than "0") reopens the order (`PayTest`)
+- [ ] Only a documented refusal (a `ResponseCode` other than "0", a 4xx with an `errorCode`, or `500.001.1001`, `500.003.02`, `500.003.03`) reopens the order, with "wait one minute" advice for an open session (`PayTest`)
 - [ ] A server error, an unreadable answer or no answer leaves the order `awaiting_payment` with a 504 that says not to pay again (`PayTest`)
 - [ ] Request IDs are saved only on a payment that is still pending (`PayTest`)
 - [ ] A total outside 1 to 250,000 is refused before any call (`PayTest`)
@@ -30,7 +30,7 @@ Tick each line on your own app. The test named in brackets checks it for you.
 - [ ] The same result twice gives one paid order and one receipt (`CallbackTest`)
 - [ ] A confirmed cancel (1032) returns the order to `pending` (`CallbackTest`)
 - [ ] A forged cancel cannot reopen an order the status query says is paid (`CallbackTest`)
-- [ ] An unknown or missing result code keeps the payment pending and the job retries (`CallbackTest`)
+- [ ] A result code other than 0 or 1032 sends the payment to `needs_review` and keeps the order waiting; a missing code makes the job retry (`CallbackTest`)
 - [ ] A wrong amount, or a success for a failed payment, goes to `needs_review`; in the second case the order goes back to `awaiting_payment` (`CallbackTest`)
 
 ## Milestone 04: reconcile
@@ -44,6 +44,7 @@ Tick each line on your own app. The test named in brackets checks it for you.
 
 ## Before real money
 
+- [ ] Expect a review queue: Safaricom documents only result codes 0 and 1032, so every other code lands in `needs_review`. Check each one against your M-PESA statement (Org portal), then settle or refund it by hand. Never "fix" the queue by guessing failure codes.
 - [ ] Logs never contain full phone numbers, tokens, passkeys or Daraja request bodies (they carry the password)
 - [ ] Someone checks the `needs_review` list every day
 - [ ] Customers sign in, and the pay and order endpoints check that the order belongs to them

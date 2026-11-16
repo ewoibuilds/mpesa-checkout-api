@@ -89,7 +89,7 @@ Route::post('/orders/{order:reference}/pay', function (Request $request, Order $
             Order::whereKey($order->id)->where('status', 'awaiting_payment')->update(['status' => 'pending']);
         });
 
-        return response()->json(['message' => 'The payment could not be started. You can try again.'], 502);
+        return response()->json(['message' => $mpesa->refusalMessage($response)], 502);
     }
 
     // No clear answer: the prompt may have been sent, so the order is not reopened for a second payment.

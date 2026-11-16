@@ -90,7 +90,7 @@ Route::post('/orders/{order:reference}/pay', function (Request $request, Order $
             Order::whereKey($order->id)->where('status', 'awaiting_payment')->update(['status' => 'pending']);
         });
 
-        return response()->json(['message' => 'The payment could not be started. You can try again.'], 502);
+        return response()->json(['message' => $mpesa->refusalMessage($response)], 502);
     }
 
     // No clear answer: the prompt may have been sent, so the order is not reopened for a second payment.
@@ -129,7 +129,7 @@ Route::post('/payments/result/{token}', function (Request $request, Mpesa $mpesa
 
         if ($payment->status !== 'pending') {
             DB::transaction(function () use ($payment, $receipt) {
-                $flagged = Payment::whereKey($payment->id)->whereIn('status', ['failed', 'cancelled'])->update(['status' => 'needs_review', 'reported_receipt' => $receipt, 'result_desc' => 'Success reported for a closed payment: check manually']);
+                $flagged = Payment::whereKey($payment->id)->whereIn('status', ['failed', 'cancelled', 'needs_review'])->update(array_filter(['status' => 'needs_review', 'reported_receipt' => $receipt, 'result_desc' => 'Success reported for a closed payment: check manually']));
                 if ($flagged === 1) {
                     Order::whereKey($payment->order_id)->where('status', 'pending')->update(['status' => 'awaiting_payment']);
                 }
@@ -139,7 +139,7 @@ Route::post('/payments/result/{token}', function (Request $request, Mpesa $mpesa
             return $ack;
         }
 
-        if ((int) $items->get('Amount') !== $payment->amount) {
+        if ((float) $items->get('Amount') !== (float) $payment->amount) {
             Payment::whereKey($payment->id)->where('status', 'pending')->update(['status' => 'needs_review', 'reported_receipt' => $receipt, 'result_desc' => 'Amount mismatch: check manually']);
             Log::error('M-Pesa payment needs review: amount mismatch', ['payment' => $payment->id]);
 

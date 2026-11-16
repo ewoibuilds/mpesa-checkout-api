@@ -7,7 +7,6 @@ use App\Models\Payment;
 use App\Services\Mpesa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Queue;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -110,24 +109,17 @@ class CallbackTest extends TestCase
         $this->assertNull(Payment::sole()->mpesa_receipt);
     }
 
-    public function test_an_unknown_result_code_keeps_everything_waiting(): void
+    public function test_an_undocumented_result_code_goes_to_review_and_the_order_keeps_waiting(): void
     {
         $this->setUpDaraja($this->queryAnswers('4999', 'The transaction is still under processing'));
         $order = $this->makeOrder();
         $this->pay($order);
-        Queue::fake();
 
-        $this->sendCallback(resultCode: 1032)->assertOk();
-        Queue::assertPushed(ConfirmMpesaPayment::class);
+        $this->sendCallback(resultCode: 1037)->assertOk();
 
-        try {
-            (new ConfirmMpesaPayment(Payment::sole()->id))->handle(app(Mpesa::class));
-            $this->fail('An unknown result code must make the job retry.');
-        } catch (RuntimeException $e) {
-            $this->assertStringContainsString('not a known final answer', $e->getMessage());
-        }
-        $this->assertSame('pending', Payment::sole()->status);
+        $this->assertSame('needs_review', Payment::sole()->status);
         $this->assertSame('awaiting_payment', $order->fresh()->status);
+        $this->pay($order)->assertStatus(409);
     }
 
     public function test_a_missing_result_code_keeps_everything_waiting(): void
