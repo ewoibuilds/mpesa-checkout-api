@@ -1,6 +1,6 @@
 # Milestone 01: orders
 
-Guide: **M-Pesa checkout API** (on ewoibuilds.com: `/projects/mpesa-checkout-api`), steps 1 to 3
+Guide: [M-Pesa checkout API](https://ewoibuilds.com/projects/mpesa-checkout-api), steps 1 to 3
 
 **Your workspace folder:** `~/ewoi-learning/mpesa-checkout-api` (Laravel 13, with `php artisan install:api` run once).
 

@@ -22,7 +22,7 @@
 
 A customer creates an order, pays with an M-Pesa prompt on their phone, and the order becomes **paid** only when Safaricom's own status query agrees. Only a confirmed answer from Safaricom moves a payment to a final state. Repeated results, double taps and confirmed cancels are settled automatically; anything unclear (no answer, an unknown result code, a wrong amount, a success for a closed payment) stays waiting or goes to a `needs_review` list for a person, never silently to paid or failed. Tests prove each path without ever calling Safaricom.
 
-Project guide: **M-Pesa checkout API** (on ewoibuilds.com: `/projects/mpesa-checkout-api`)
+Project guide: [M-Pesa checkout API](https://ewoibuilds.com/projects/mpesa-checkout-api)
 
 ## Start here
 
@@ -39,7 +39,7 @@ The full checklist is in [ACCEPTANCE.md](ACCEPTANCE.md).
 
 - A laptop or desktop and a stable internet connection
 - Operating system: Windows 10 or 11, macOS or Linux
-- Prerequisites: the **Accept M-Pesa payments in Laravel** (on ewoibuilds.com: `/lessons/mpesa-stk-push-laravel`) tutorial
+- Prerequisites: the [Accept M-Pesa payments in Laravel](https://ewoibuilds.com/lessons/mpesa-stk-push-laravel) tutorial
 - Tools (search for each on its official site; download only from the official site and check the address):
   - PHP 8.3 or newer and Composer 2: search for "Laravel installation php.new"
   - Git: search for "Git official download"

@@ -1,6 +1,6 @@
 # Milestone 04: reconcile
 
-Guide: **M-Pesa checkout API** (on ewoibuilds.com: `/projects/mpesa-checkout-api`), steps 6 and 7
+Guide: [M-Pesa checkout API](https://ewoibuilds.com/projects/mpesa-checkout-api), steps 6 and 7
 
 **Your workspace folder:** `~/ewoi-learning/mpesa-checkout-api` (Laravel 13, with `php artisan install:api` run once).
 

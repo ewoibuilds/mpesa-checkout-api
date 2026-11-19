@@ -1,6 +1,6 @@
 # Milestone 02: pay once
 
-Guide: **M-Pesa checkout API** (on ewoibuilds.com: `/projects/mpesa-checkout-api`), step 4
+Guide: [M-Pesa checkout API](https://ewoibuilds.com/projects/mpesa-checkout-api), step 4
 
 **Your workspace folder:** `~/ewoi-learning/mpesa-checkout-api` (Laravel 13, with `php artisan install:api` run once).
 
